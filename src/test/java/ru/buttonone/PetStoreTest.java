@@ -3,6 +3,7 @@ package ru.buttonone;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -11,6 +12,8 @@ public class PetStoreTest {
     private static final String PET_STATUS = "/v2/pet/findByStatus?status={status}";
     private static final String ORDER_ID = "/v2/store/order/{id}";
     private static final String PET_ID = "/v2/pet/{id}";
+    private static final String PET_INVENTORY = "/v2/store/inventory";
+
 
     @ParameterizedTest
     @ValueSource(strings = {"available", "pending", "sold"})
@@ -57,5 +60,16 @@ public class PetStoreTest {
                 .contentType(ContentType.JSON);
     }
 
-
+    @Test
+    @DisplayName("Проверка получения инвентаря питомцев")
+    public void checkByInventory() {
+        RestAssured.given()
+                .baseUri(BASE_URL)
+                .when()
+                .get(PET_INVENTORY)
+                .then().log().all()
+                .assertThat()
+                .statusCode(200)
+                .contentType(ContentType.JSON);
+    }
 }
