@@ -11,9 +11,10 @@ import ru.buttonone.pojo.Pet;
 import ru.buttonone.pojo.Tag;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.buttonone.EndPoints.*;
 import static ru.buttonone.specifications.Specification.requestSpecParamsId;
 import static ru.buttonone.specifications.Specification.requestSpecParamsStatus;
@@ -76,12 +77,9 @@ public class PetStoreTest {
     @Test
     @DisplayName("Проверка добавления нового питомца в магазин")
     public void checkAddNewPetToStore() {
-        Category category = new Category(109,"DOG");
-        Tag tag = new Tag(105, "DDDoG");
-        ArrayList<String> photoUrls = new ArrayList<>();
-        photoUrls.add("https://dog.dog.com/dog-dog.jpg");
-        ArrayList<Tag> tags = new ArrayList<>();
-        tags.add(tag);
+        Category category = new Category(109, "DOG");
+        ArrayList<String> photoUrls = new ArrayList<>(List.of("https://dog.dog.com/dog-dog.jpg"));
+        ArrayList<Tag> tags = new ArrayList<>(List.of(new Tag(105, "DDDoG")));
         Pet pet = new Pet(28112013, category, "Jec", photoUrls, tags, "available");
 
         Pet response = given()
@@ -94,10 +92,12 @@ public class PetStoreTest {
                 .then()
                 .log().all()
                 .statusCode(200)
-                .extract().as(Pet.class);
-
-        assertEquals("28112013", response.getId().toString());
-
-
+                .extract().body().as(Pet.class);
+        Assertions.assertAll(
+                () -> assertEquals("28112013", response.getId().toString(),
+                        "ID указанный в теле ответа не соответствует ID в POST запросе"),
+                () -> assertEquals(category, response.getCategory(),
+                        "Категория указанная в теле ответа не соответствует Категории в POST запросе")
+        );
     }
 }
