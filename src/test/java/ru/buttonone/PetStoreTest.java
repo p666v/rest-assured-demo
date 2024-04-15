@@ -6,34 +6,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.buttonone.pojo.Category;
 import ru.buttonone.pojo.Pet;
-import ru.buttonone.pojo.Tag;
-
-import java.util.ArrayList;
-import java.util.List;
+import ru.buttonone.utilities.ConfProperties;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.buttonone.EndPoints.*;
-import static ru.buttonone.specifications.Specification.requestSpecParamsId;
-import static ru.buttonone.specifications.Specification.requestSpecParamsStatus;
+import static ru.buttonone.specifications.Specification.*;
 
 
 public class PetStoreTest {
-    private static final String BASE_URL = "https://petstore.swagger.io";
+    private final ConfProperties confProperties = new ConfProperties();
+    private final PetStoreTestData petStoreTestData = new PetStoreTestData();
 
     @ParameterizedTest
     @ValueSource(strings = {"available", "pending", "sold"})
     @DisplayName("Проверка поиска питомцев по статусу")
     public void checkPetSearchByStatus(String argument) {
         given()
-                .spec(requestSpecParamsStatus(BASE_URL, argument))
+                .spec(requestSpecParamsStatus(confProperties.getProperty("base-url"), argument))
                 .when()
                 .get(PET_STATUS)
-                .then().log().all()
-                .statusCode(200)
-                .contentType(ContentType.JSON);
+                .then()
+                .spec(responseSpec());
     }
 
     @ParameterizedTest
@@ -41,62 +36,54 @@ public class PetStoreTest {
     @DisplayName("Проверка наличия заказа по идентификатору")
     public void checkThatOrderExistsById(int argument) {
         given()
-                .spec(requestSpecParamsId(BASE_URL, argument))
+                .spec(requestSpecParamsId(confProperties.getProperty("base-url"), argument))
                 .when()
                 .get(ORDER_ID)
-                .then().log().all()
-                .statusCode(200)
-                .contentType(ContentType.JSON);
+                .then()
+                .spec(responseSpec());
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {10, 27, 30})
+    @ValueSource(ints = {10, 11, 27})
     @DisplayName("Проверка питомца по идентификатору")
     public void checkPetById(int argument) {
         given()
-                .spec(requestSpecParamsId(BASE_URL, argument))
+                .spec(requestSpecParamsId(confProperties.getProperty("base-url"), argument))
                 .when()
                 .get(PET_ID)
-                .then().log().all()
-                .statusCode(200)
-                .contentType(ContentType.JSON);
+                .then()
+                .spec(responseSpec());
     }
 
     @Test
     @DisplayName("Проверка получения инвентаря питомцев")
     public void checkByInventory() {
         given()
-                .baseUri(BASE_URL)
+                .baseUri(confProperties.getProperty("base-url"))
                 .when()
                 .get(PET_INVENTORY)
-                .then().log().all()
-                .statusCode(200)
-                .contentType(ContentType.JSON);
+                .then()
+                .spec(responseSpec());
     }
 
     @Test
     @DisplayName("Проверка добавления нового питомца в магазин")
     public void checkAddNewPetToStore() {
-        Category category = new Category(109, "DOG");
-        ArrayList<String> photoUrls = new ArrayList<>(List.of("https://dog.dog.com/dog-dog.jpg"));
-        ArrayList<Tag> tags = new ArrayList<>(List.of(new Tag(105, "DDDoG")));
-        Pet pet = new Pet(28112013, category, "Jec", photoUrls, tags, "available");
-
         Pet response = given()
-                .baseUri(BASE_URL)
+                .baseUri(confProperties.getProperty("base-url"))
                 .when()
                 .contentType(ContentType.JSON)
                 .log().all()
-                .body(pet)
+                .body(petStoreTestData.petData())
                 .post(PET_ADD)
                 .then()
                 .log().all()
-                .statusCode(200)
+                .spec(responseSpec())
                 .extract().body().as(Pet.class);
         Assertions.assertAll(
-                () -> assertEquals("28112013", response.getId().toString(),
+                () -> assertEquals(petStoreTestData.petData().getId(), response.getId(),
                         "ID указанный в теле ответа не соответствует ID в POST запросе"),
-                () -> assertEquals(category, response.getCategory(),
+                () -> assertEquals(petStoreTestData.categoryData(), response.getCategory(),
                         "Категория указанная в теле ответа не соответствует Категории в POST запросе")
         );
     }
