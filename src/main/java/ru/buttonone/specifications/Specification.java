@@ -1,5 +1,6 @@
 package ru.buttonone.specifications;
 
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -7,21 +8,25 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+import static ru.buttonone.constants.ApiConstant.BASE_URL;
+
 public class Specification {
 
-    public static RequestSpecification requestSpecParamsStatus(String url, String argument) {
+    public static RequestSpecification requestSpecWithStatus(String argument) {
         return new RequestSpecBuilder()
-                .setBaseUri(url)
+                .setBaseUri(BASE_URL)
                 .log(LogDetail.ALL)
                 .addPathParams("status", argument)
+                .addFilter(new AllureRestAssured())
                 .build();
     }
 
-    public static RequestSpecification requestSpecParamsId(String url, int argument) {
+    public static RequestSpecification requestSpecParamsId(int argument) {
         return new RequestSpecBuilder()
-                .setBaseUri(url)
+                .setBaseUri(BASE_URL)
                 .log(LogDetail.ALL)
                 .addPathParams("id", argument)
+                .addFilter(new AllureRestAssured())
                 .build();
     }
 
