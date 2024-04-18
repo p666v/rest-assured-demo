@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import ru.buttonone.models.Pet;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.buttonone.constants.ApiConstant.*;
 import static ru.buttonone.specifications.Specification.*;
@@ -95,7 +96,7 @@ public class PetStoreTest {
         log.info("Проверка созданного объекта на соответствие данным в POST запросе");
         Pet petData = petStoreTestData.petData();
 
-        Assertions.assertAll(
+        assertAll(
                 () -> assertEquals(petData.getId(), response.getId(),
                         "ID указанный в теле ответа не соответствует ID в POST запросе"),
                 () -> assertEquals(petData.getCategory(), response.getCategory(),
