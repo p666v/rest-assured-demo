@@ -33,7 +33,6 @@ public class AddNewPetToStoreTest {
                 .body(petStoreTestData.petData())
                 .post(ADD_NEW_PET)
                 .then()
-                .log().all()
                 .spec(responseSpec())
                 .extract().body().as(Pet.class);
 
