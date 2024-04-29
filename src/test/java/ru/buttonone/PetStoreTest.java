@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static ru.buttonone.constants.ApiConstant.*;
 import static ru.buttonone.specifications.Specification.*;
 
@@ -24,12 +25,13 @@ public class PetStoreTest {
                 .when()
                 .get(PET_BY_STATUS)
                 .then()
+                .body(matchesJsonSchemaInClasspath("pet-schema.json"))
                 .spec(responseSpec());
         log.info("Проверка поиска питомцев по статусу успешна");
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {50, 55, 10})
+    @ValueSource(ints = {3, 4, 9})  //todo Нет доступа к базе данных, данные могут отсутствовать
     @DisplayName("Проверка наличия заказа по идентификатору")
     public void checkThatOrderExistsById(int argument) {
         log.info(String.format("Проверка наличия заказа по идентификатору %d", argument));
@@ -38,12 +40,13 @@ public class PetStoreTest {
                 .when()
                 .get(ORDER_BY_ID)
                 .then()
+                .body(matchesJsonSchemaInClasspath("order-schema.json"))
                 .spec(responseSpec());
         log.info("Проверка наличия заказа по идентификатору успешна");
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {5, 10, 27})
+    @ValueSource(ints = {1, 9, 420})  //todo Нет доступа к базе данных, данные могут отсутствовать
     @DisplayName("Проверка питомца по идентификатору")
     public void checkPetById(int argument) {
         log.info(String.format("Проверка питомца по идентификатору %d", argument));
@@ -52,6 +55,7 @@ public class PetStoreTest {
                 .when()
                 .get(PET_BY_ID)
                 .then()
+                .body(matchesJsonSchemaInClasspath("pet-schema.json"))
                 .spec(responseSpec());
         log.info("Проверка питомца по идентификатору успешна");
     }

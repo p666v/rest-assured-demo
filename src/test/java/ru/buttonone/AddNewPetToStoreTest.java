@@ -9,6 +9,7 @@ import org.junit.jupiter.api.parallel.Isolated;
 import ru.buttonone.models.Pet;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.buttonone.constants.ApiConstant.ADD_NEW_PET;
@@ -33,6 +34,7 @@ public class AddNewPetToStoreTest {
                 .body(petStoreTestData.petData())
                 .post(ADD_NEW_PET)
                 .then()
+                .body(matchesJsonSchemaInClasspath("pet-schema.json"))
                 .spec(responseSpec())
                 .extract().body().as(Pet.class);
 
